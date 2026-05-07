@@ -1,0 +1,12 @@
+[project]
+name = "csrf-attack-and-defense"
+version = "0.1.0"
+description = "Educational CSRF vulnerable web application"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "flask>=3.1.3",
+    "mysql-connector-python>=9.7.0",
+    "pytest>=9.0.3",
+    "werkzeug>=3.1.8",
+]
