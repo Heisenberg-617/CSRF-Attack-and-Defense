@@ -1,19 +1,48 @@
-from flask import Flask
-# from database.db import init_db
+from flask import Flask, jsonify
+from database.db import get_db_connection
 
 app = Flask(__name__)
-app.secret_key = "replace_with_a_long_random_value"  # needed for session
 
-# Configure DB (example)
-# app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = 'root'
-# app.config['MYSQL_DB'] = 'csrf_project'
-# app.config['MYSQL_HOST'] = 'db'  # Docker service name
-# init_db(app)  # sets up mysql connection
+app.secret_key = "replace_with_a_long_random_value"
 
+
+# -------------------------
+# HEALTH CHECK ROUTE
+# -------------------------
 @app.route("/")
 def home():
-    return "Flask is working 🚀"
+    return "Flask is running 🚀"
 
+
+# -------------------------
+# DB TEST ROUTE (VERY IMPORTANT)
+# -------------------------
+@app.route("/test-db")
+def test_db():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT DATABASE();")
+        db_name = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            "status": "success",
+            "connected_database": db_name
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+# -------------------------
+# MAIN ENTRY
+# -------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

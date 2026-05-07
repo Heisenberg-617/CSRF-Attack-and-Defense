@@ -3,9 +3,27 @@ services:
     build: ./docker/flask
     ports:
       - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: csrf_project
+      DATABASE_USER: csrf_user
+      DATABASE_PASSWORD: csrf_pass
 
   db:
-    image: mysql:8
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: csrf_project
+      MYSQL_USER: csrf_user
+      MYSQL_PASSWORD: csrf_pass
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./app/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+
+volumes:
+  db_data:
