@@ -1,6 +1,6 @@
 services:
   web:
-    build: ./docker/flask
+    build: .
     ports:
       - "5000:5000"
     depends_on:
