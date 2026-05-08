@@ -6,52 +6,60 @@
 </head>
 <body>
 
-    <h1>Create Task</h1>
+    <h1>Create New Task</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p style="color: {% if category == 'danger' %}red{% else %}green{% endif %};">
+                    {{ message }}
+                </p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
     <form method="POST">
 
-        <label>Title</label>
+        <label><strong>Title</strong></label>
         <br>
-        <input type="text" name="title" required>
+        <input type="text" name="title" placeholder="Enter task title" required style="width: 300px;">
         <br><br>
 
-        <label>Description</label>
+        <label><strong>Description</strong></label>
         <br>
-        <textarea name="description"></textarea>
+        <textarea name="description" rows="5" placeholder="Describe the task..." style="width: 300px;"></textarea>
         <br><br>
 
-        <label>Deadline</label>
+        <label><strong>Deadline</strong></label>
         <br>
         <input type="date" name="deadline">
         <br><br>
 
-        <label>Team</label>
+        <label><strong>Assign to Team</strong></label>
         <br>
-
         <select name="team_id">
-
+            <option value="" selected>-- No Team Assigned --</option>
+            
             {% for team in teams %}
-
                 <option value="{{ team.id }}">
                     {{ team.name }}
                 </option>
-
             {% endfor %}
-
         </select>
 
         <br><br>
 
-        <button type="submit">
+        <button type="submit" style="padding: 10px 20px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">
             Create Task
         </button>
 
     </form>
 
     <br>
+    <hr>
 
     <a href="{{ url_for('tasks.dashboard') }}">
-        Back to Dashboard
+        ← Back to Dashboard
     </a>
 
 </body>
