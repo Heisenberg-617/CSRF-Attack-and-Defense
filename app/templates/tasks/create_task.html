@@ -1,1 +1,30 @@
-{# Create task page #}
+{% extends "base.html" %}
+
+{% block title %}Create Task - CSRF Demo{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Create Task</h1>
+    
+    <form method="POST" action="/tasks/create" class="form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" id="deadline" name="deadline">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Create Task</button>
+    </form>
+</div>
+{% endblock %}

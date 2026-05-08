@@ -1,1 +1,23 @@
-{# Task details page #}
+{% extends "base.html" %}
+
+{% block title %}{{ task.title }} - CSRF Demo{% endblock %}
+
+{% block content %}
+<div class="task-details">
+    <h1>{{ task.title }}</h1>
+    <p><strong>Status:</strong> {{ task.status }}</p>
+    <p><strong>Deadline:</strong> {{ task.deadline or 'No deadline' }}</p>
+    <p><strong>Description:</strong></p>
+    <p>{{ task.description or 'No description' }}</p>
+    
+    <div class="task-actions">
+        <a href="/tasks/{{ task.id }}/edit" class="btn btn-primary">Edit</a>
+        <form method="POST" action="/tasks/{{ task.id }}/delete" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this task?')">Delete</button>
+        </form>
+    </div>
+    
+    <a href="/dashboard">Back to Dashboard</a>
+</div>
+{% endblock %}

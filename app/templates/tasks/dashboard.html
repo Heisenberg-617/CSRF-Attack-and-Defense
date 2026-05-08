@@ -1,1 +1,41 @@
-{# Tasks dashboard #}
+{% extends "base.html" %}
+
+{% block title %}Dashboard - CSRF Demo{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1>Task Dashboard</h1>
+    <a href="/tasks/create" class="btn btn-primary">Create New Task</a>
+    
+    {% if tasks %}
+        <table class="tasks-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                    <tr>
+                        <td><a href="/tasks/{{ task.id }}">{{ task.title }}</a></td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.deadline or 'N/A' }}</td>
+                        <td>
+                            <a href="/tasks/{{ task.id }}/edit">Edit</a>
+                            <form method="POST" action="/tasks/{{ task.id }}/delete" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" onclick="return confirm('Delete?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No tasks yet. <a href="/tasks/create">Create one</a></p>
+    {% endif %}
+</div>
+{% endblock %}
