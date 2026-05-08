@@ -1,1 +1,39 @@
 {# Task details page #}
+{# Task details page #}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Details</title>
+</head>
+<body>
+
+    <h1>Task Details</h1>
+
+    <a href="{{ url_for('tasks.dashboard') }}">← Back to Dashboard</a>
+
+    <hr>
+
+    <h2>{{ task.title }}</h2>
+
+    <p><strong>Description:</strong> {{ task.description }}</p>
+
+    <p><strong>Deadline:</strong> {{ task.deadline }}</p>
+
+    <p><strong>Team:</strong> {{ task.team_name }}</p>
+
+    <hr>
+
+    <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}">
+        Edit Task
+    </a>
+
+    <form action="{{ url_for('tasks.delete_task') }}" method="POST" style="display:inline;">
+        <input type="hidden" name="task_id" value="{{ task.id }}">
+        <button type="submit" onclick="return confirm('Are you sure?')">
+            Delete Task
+        </button>
+    </form>
+
+</body>
+</html>

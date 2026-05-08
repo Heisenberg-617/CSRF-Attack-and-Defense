@@ -1,1 +1,58 @@
 {# Create task page #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Task</title>
+</head>
+<body>
+
+    <h1>Create Task</h1>
+
+    <form method="POST">
+
+        <label>Title</label>
+        <br>
+        <input type="text" name="title" required>
+        <br><br>
+
+        <label>Description</label>
+        <br>
+        <textarea name="description"></textarea>
+        <br><br>
+
+        <label>Deadline</label>
+        <br>
+        <input type="date" name="deadline">
+        <br><br>
+
+        <label>Team</label>
+        <br>
+
+        <select name="team_id">
+
+            {% for team in teams %}
+
+                <option value="{{ team.id }}">
+                    {{ team.name }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <button type="submit">
+            Create Task
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="{{ url_for('tasks.dashboard') }}">
+        Back to Dashboard
+    </a>
+
+</body>
+</html>
