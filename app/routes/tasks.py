@@ -102,3 +102,27 @@ def delete_task():
     db.close()
     flash("Task deleted successfully", "success")
     return redirect(url_for('tasks.dashboard'))
+
+@tasks_bp.route('/task/<int:task_id>')
+def task_details(task_id):
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+
+    # Requête avec JOIN pour avoir le nom de l'équipe
+    query = """
+        SELECT tasks.*, teams.name AS team_name 
+        FROM tasks 
+        LEFT JOIN teams ON tasks.team_id = teams.id 
+        WHERE tasks.id = %s
+    """
+    cursor.execute(query, (task_id,))
+    task = cursor.fetchone()
+    
+    cursor.close()
+    db.close()
+
+    if not task:
+        flash("Task not found", "danger")
+        return redirect(url_for('tasks.dashboard'))
+
+    return render_template('tasks/task_details.html', task=task)
