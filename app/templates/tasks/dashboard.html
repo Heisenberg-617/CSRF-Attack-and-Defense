@@ -3,80 +3,82 @@
 <html>
 <head>
     <title>Dashboard</title>
+    <style>
+        /* Petit style rapide pour la visibilité des messages */
+        .flash-success { color: green; font-weight: bold; }
+        .flash-danger { color: red; font-weight: bold; }
+    </style>
 </head>
 <body>
 
     <h1>Tasks Dashboard</h1>
 
-    <a href="{{ url_for('tasks.create_task') }}">
-        Create New Task
-    </a>
+    <nav>
+        <a href="{{ url_for('tasks.create_task') }}">Create New Task</a> | 
+        <a href="{{ url_for('teams.manage_teams') }}">Manage Teams</a>
+    </nav>
 
     <hr>
 
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            {% for message in messages %}
-                <p>{{ message }}</p>
+            {% for category, message in messages %}
+                <p class="flash-{{ category }}">{{ message }}</p>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
-    <table border="1" cellpadding="10">
+    <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Deadline</th>
+                <th>Team</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td><strong>{{ task.title }}</strong></td>
+                <td>{{ task.description or 'No description' }}</td>
+                <td>{{ task.deadline or 'No deadline' }}</td>
+                <td>
+                    {% if task.team_name %}
+                        <span style="background: #e0f7fa; padding: 2px 5px; border-radius: 4px;">
+                            {{ task.team_name }}
+                        </span>
+                    {% else %}
+                        <em style="color: gray;">Unassigned</em>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}">Edit</a>
+                    
+                    |
 
-        <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Deadline</th>
-            <th>Team</th>
-            <th>Actions</th>
-        </tr>
-
-        {% for task in tasks %}
-
-        <tr>
-
-            <td>{{ task.id }}</td>
-
-            <td>{{ task.title }}</td>
-
-            <td>{{ task.description }}</td>
-
-            <td>{{ task.deadline }}</td>
-
-            <td>{{ task.team_name }}</td>
-
-            <td>
-
-                <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}">
-                    Edit
-                </a>
-
-                <form
-                    action="{{ url_for('tasks.delete_task') }}"
-                    method="POST"
-                    style="display:inline;"
-                >
-
-                    <input
-                        type="hidden"
-                        name="task_id"
-                        value="{{ task.id }}"
+                    <form
+                        action="{{ url_for('tasks.delete_task') }}"
+                        method="POST"
+                        style="display:inline;"
+                        onsubmit="return confirm('Are you sure you want to delete this task?');"
                     >
-
-                    <button type="submit">
-                        Delete
-                    </button>
-
-                </form>
-
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
+                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                        <button type="submit" style="color: red; cursor: pointer;">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center;">No tasks found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 
 </body>

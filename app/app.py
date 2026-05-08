@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
 from app.database.db import get_db_connection
 from app.routes.tasks import tasks_bp  # <-- ajouté
+from app.routes.teams import teams_bp
 
 app = Flask(__name__)
 app.register_blueprint(tasks_bp)
+app.register_blueprint(teams_bp)
 
 app.secret_key = "replace_with_a_long_random_value"
 
