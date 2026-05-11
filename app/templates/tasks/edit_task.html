@@ -1,1 +1,72 @@
 {# Edit task page #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Task</title>
+</head>
+<body>
+
+    <h1>Edit Task</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p style="color: {% if category == 'danger' %}red{% else %}green{% endif %};">
+                    {{ message }}
+                </p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+
+        <label><strong>Title</strong></label><br>
+        <input 
+            type="text" 
+            name="title" 
+            value="{{ task.title }}" 
+            required 
+            style="width: 300px;"
+        ><br><br>
+
+        <label><strong>Description</strong></label><br>
+        <textarea name="description" rows="5" style="width: 300px;">{{ task.description }}</textarea><br><br>
+
+        <label><strong>Deadline</strong></label><br>
+        <input 
+            type="date" 
+            name="deadline" 
+            value="{{ task.deadline }}"
+        ><br><br>
+
+        <label><strong>Team Assignment</strong></label><br>
+        <select name="team_id">
+            <option value="">-- No Team Assigned --</option>
+            
+            {% for team in teams %}
+                <option 
+                    value="{{ team.id }}" 
+                    {% if task.team_id == team.id %}selected{% endif %}
+                >
+                    {{ team.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <br><br>
+
+        <button type="submit" style="padding: 10px 20px; cursor: pointer;">
+            Update Task
+        </button>
+
+    </form>
+
+    <br>
+    <hr>
+
+    <a href="{{ url_for('tasks.dashboard') }}">
+        ← Back to Dashboard
+    </a>
+
+</body>
+</html>

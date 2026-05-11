@@ -1,1 +1,53 @@
 {# Task details page #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Details - {{ task.title }}</title>
+    <style>
+        .detail-box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 600px; }
+        .label { font-weight: bold; color: #555; }
+    </style>
+</head>
+<body>
+
+    <h1>Task Details</h1>
+
+    <a href="{{ url_for('tasks.dashboard') }}">← Back to Dashboard</a>
+
+    <hr>
+
+    <div class="detail-box">
+        <h2>{{ task.title }}</h2>
+
+        <p><span class="label">Description:</span><br> 
+           {{ task.description or "No description provided." }}</p>
+
+        <p><span class="label">Deadline:</span> 
+           {{ task.deadline or "No deadline set" }}</p>
+
+        <p><span class="label">Team assigned:</span> 
+           {% if task.team_name %}
+                <strong>{{ task.team_name }}</strong>
+           {% else %}
+                <em style="color: gray;">None</em>
+           {% endif %}
+        </p>
+
+        <hr>
+
+        <div style="margin-top: 20px;">
+            <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}">
+                <button type="button">Edit Task</button>
+            </a>
+
+            <form action="{{ url_for('tasks.delete_task') }}" method="POST" style="display:inline;">
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <button type="submit" style="color: white; background-color: red;" onclick="return confirm('Are you sure?')">
+                    Delete Task
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
