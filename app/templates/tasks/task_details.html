@@ -1,51 +1,63 @@
 {# Task details page #}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Details - {{ task.title }}</title>
-    <style>
-        .detail-box { border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 600px; }
-        .label { font-weight: bold; color: #555; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-    <h1>Task Details</h1>
+    <nav class="navbar">
+        <div class="container">
+            <h1>CSRF Lab</h1>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('tasks.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('tasks.create_task') }}">Create Task</a></li>
+                <li><a href="{{ url_for('teams.manage_teams') }}">Manage Teams</a></li>
+            </ul>
+        </div>
+    </nav>
 
-    <a href="{{ url_for('tasks.dashboard') }}">← Back to Dashboard</a>
+    <div class="container">
+        <div class="task-details">
+            <h1>{{ task.title }}</h1>
 
-    <hr>
+            <p><strong>Status:</strong> 
+                {% if task.status == 'done' %} <span style="color: green;">Done</span>
+                {% elif task.status == 'in_progress' %} <span style="color: orange;">In Progress</span>
+                {% else %} To Do {% endif %}
+            </p>
 
-    <div class="detail-box">
-        <h2>{{ task.title }}</h2>
+            <p><strong>Description:</strong><br> 
+               {{ task.description or "No description provided." }}</p>
 
-        <p><span class="label">Description:</span><br> 
-           {{ task.description or "No description provided." }}</p>
+            <p><strong>Deadline:</strong> 
+               {{ task.deadline.strftime('%Y-%m-%d') if task.deadline else "No deadline set" }}</p>
 
-        <p><span class="label">Deadline:</span> 
-           {{ task.deadline or "No deadline set" }}</p>
+            <p><strong>Team Assigned:</strong> 
+               {% if task.team_name %}
+                    <span style="background: #e0f7fa; padding: 4px 8px; border-radius: 12px; font-weight: 500;">
+                        {{ task.team_name }}
+                    </span>
+               {% else %}
+                    <em style="color: gray;">None</em>
+               {% endif %}
+            </p>
 
-        <p><span class="label">Team assigned:</span> 
-           {% if task.team_name %}
-                <strong>{{ task.team_name }}</strong>
-           {% else %}
-                <em style="color: gray;">None</em>
-           {% endif %}
-        </p>
+            <hr style="margin: 2rem 0; border: 0; border-top: 1px solid #eee;">
 
-        <hr>
-
-        <div style="margin-top: 20px;">
-            <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}">
-                <button type="button">Edit Task</button>
-            </a>
-
-            <form action="{{ url_for('tasks.delete_task') }}" method="POST" style="display:inline;">
-                <input type="hidden" name="task_id" value="{{ task.id }}">
-                <button type="submit" style="color: white; background-color: red;" onclick="return confirm('Are you sure?')">
-                    Delete Task
-                </button>
-            </form>
+            <!-- THE FIX: Updated delete route and removed hidden input -->
+            <div class="task-actions">
+                <a href="{{ url_for('tasks.edit_task', task_id=task.id) }}" class="btn btn-secondary">Edit Task</a>
+                
+                <form action="{{ url_for('tasks.delete_task', task_id=task.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this task?')">
+                        Delete Task
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

@@ -6,9 +6,7 @@
 <div class="form-container">
     <h1>Register</h1>
     
-    <form method="POST" action="/register" class="form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        
+    <form method="POST" action="/register" class="form">        
         <div class="form-group">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>

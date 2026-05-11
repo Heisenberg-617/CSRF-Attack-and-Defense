@@ -10,6 +10,8 @@ services:
       DATABASE_NAME: csrf_project
       DATABASE_USER: csrf_user
       DATABASE_PASSWORD: csrf_pass
+    volumes:
+      - .:/app
 
   db:
     image: mysql:8.0

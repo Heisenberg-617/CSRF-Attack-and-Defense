@@ -1,89 +1,110 @@
 # Team management routes
+from functools import wraps
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-# On suppose que tu as un module de base de données pour récupérer une connexion MySQL
-# Adapte l'import selon la structure réelle de ton projet (ex: database.db ou db_connect)
-# from database import get_db_connection 
+from database.db import get_db_connection
 
 teams_bp = Blueprint('teams', __name__)
 
-# Simulons une fonction de connexion si tu n'as pas encore configuré MySQL
-# (À remplacer par ta vraie connexion MySQL)
-def get_db_connection():
-    # import mysql.connector
-    # return mysql.connector.connect(host="localhost", user="root", password="", database="csrf_lab")
-    pass
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Veuillez vous connecter pour accéder à cette page.', 'danger')
+            return redirect(url_for('auth.login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
-### 1. Afficher et Créer des Équipes
 @teams_bp.route('/teams', methods=['GET', 'POST'])
+@login_required
 def manage_teams():
-    # Vérification que l'utilisateur est bien connecté (Session)
-    if 'user_id' not in session:
-        flash("Veuillez vous connecter pour accéder à cette page.", "danger")
-        return redirect(url_for('auth.login')) # Adapte selon le nom de ta route de login
-
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     if request.method == 'POST':
-        # Récupération du nom de l'équipe depuis le formulaire
-        team_name = request.form.get('name')
-        
-        if team_name:
-            # Insertion dans la base de données
-            cursor.execute("INSERT INTO teams (name) VALUES (%s)", (team_name,))
+        team_name = request.form.get('name', '').strip()
+        team_description = request.form.get('description', '').strip()
+
+        if not team_name:
+            flash("Le nom de l'équipe ne peut pas être vide.", "warning")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('teams.manage_teams'))
+
+        try:
+            cursor.execute(
+                "INSERT INTO teams (name, description) VALUES (%s, %s)",
+                (team_name, team_description or None)
+            )
             conn.commit()
             flash(f"L'équipe '{team_name}' a été créée avec succès !", "success")
-        else:
-            flash("Le nom de l'équipe ne peut pas être vide.", "warning")
-        
+        except Exception as e:
+            conn.rollback()
+            flash(f"Erreur lors de la création : {str(e)}", "danger")
+
         cursor.close()
         conn.close()
         return redirect(url_for('teams.manage_teams'))
 
-    # Si GET : On récupère toutes les équipes pour les afficher
-    cursor.execute("SELECT * FROM teams")
+    cursor.execute("SELECT * FROM teams ORDER BY created_at DESC")
     all_teams = cursor.fetchall()
-    
+
+    cursor.execute(
+        "SELECT tasks.id, tasks.title, teams.name AS team_name FROM tasks LEFT JOIN teams ON tasks.team_id = teams.id WHERE tasks.user_id = %s ORDER BY tasks.created_at DESC",
+        (session['user_id'],)
+    )
+    user_tasks = cursor.fetchall()
+
     cursor.close()
     conn.close()
-    
-    return render_template('teams.html', teams=all_teams)
+
+    return render_template('teams.html', teams=all_teams, tasks=user_tasks)
 
 
-### 2. Assigner une tâche à une équipe
-# C'est cette route POST qui sera la cible parfaite pour la démo de l'attaque CSRF !
+# Cible CSRF : pas de token, pas de validation CSRF
 @teams_bp.route('/tasks/assign', methods=['POST'])
+@login_required
 def assign_task_to_team():
-    if 'user_id' not in session:
-        flash("Accès non autorisé.", "danger")
-        return redirect(url_for('auth.login'))
 
-    # Récupération des données du formulaire
     task_id = request.form.get('task_id')
     team_id = request.form.get('team_id')
 
+    # Validate that both IDs are present and numeric
     if not task_id or not team_id:
         flash("Données d'assignation invalides.", "danger")
-        return redirect(url_for('tasks.dashboard')) # Redirige vers le tableau de bord des tâches
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
+        return redirect(url_for('tasks.dashboard'))
 
     try:
-        # Mise à jour de la tâche avec l'ID de l'équipe correspondante
+        task_id = int(task_id)
+        team_id = int(team_id)
+    except (ValueError, TypeError):
+        flash("Données d'assignation invalides.", "danger")
+        return redirect(url_for('tasks.dashboard'))
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Ownership check : only the task owner can assign it to a team
         cursor.execute(
-            "UPDATE tasks SET team_id = %s WHERE id = %s", 
-            (team_id, task_id)
+            "UPDATE tasks SET team_id = %s WHERE id = %s AND user_id = %s",
+            (team_id, task_id, session['user_id'])
         )
+        rows_affected = cursor.rowcount
         conn.commit()
-        flash("La tâche a bien été assignée à l'équipe !", "success")
+
+        if rows_affected == 0:
+            flash("Tâche introuvable ou vous n'êtes pas le propriétaire.", "warning")
+        else:
+            flash("La tâche a bien été assignée à l'équipe !", "success")
+
     except Exception as e:
-        conn.rollback()
         flash(f"Erreur lors de l'assignation : {str(e)}", "danger")
     finally:
-        cursor.close()
-        conn.close()
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
 
-    # Redirection vers le dashboard des tâches pour voir le changement
     return redirect(url_for('tasks.dashboard'))

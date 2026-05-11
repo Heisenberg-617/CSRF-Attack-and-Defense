@@ -2,30 +2,28 @@ import sys
 import os
 from pathlib import Path
 
-# Add app directory to Python path for imports
+# Ensure the app directory is in Python path so imports work correctly
 app_dir = Path(__file__).parent
 sys.path.insert(0, str(app_dir))
 
-from flask import Flask, render_template, session
-from flask_session import Session
-from app.database.db import get_db_connection
+from flask import Flask, render_template
+from database.db import get_db_connection
+
+# Authentication /  Task and team features routes
 from routes.auth import auth_bp
+from routes.tasks import tasks_bp
+from routes.teams import teams_bp
 
-from app.routes.tasks import tasks_bp  # <-- ajouté
-from app.routes.teams import teams_bp
-
+# Create Flask app instance
 app = Flask(__name__)
 
-# Task and Team routes
+# Register feature routes (blueprints)
 app.register_blueprint(tasks_bp)
 app.register_blueprint(teams_bp)
-
-app.secret_key = os.environ.get('SECRET_KEY', 'replace_with_a_long_random_value')
-
-
-# Auto-configuration for Flask-Session
 app.register_blueprint(auth_bp)
 
+# Secret key used to sign session cookies
+app.secret_key = os.environ.get('SECRET_KEY', 'replace_with_a_long_random_value')
 
 # -------------------------
 # HEALTH CHECK ROUTE

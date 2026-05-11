@@ -1,72 +1,85 @@
 {# Edit task page #}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Task</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-    <h1>Edit Task</h1>
+    <nav class="navbar">
+        <div class="container">
+            <h1>CSRF Lab</h1>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('tasks.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('tasks.create_task') }}">Create Task</a></li>
+                <li><a href="{{ url_for('teams.manage_teams') }}">Manage Teams</a></li>
+            </ul>
+        </div>
+    </nav>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <p style="color: {% if category == 'danger' %}red{% else %}green{% endif %};">
-                    {{ message }}
-                </p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    <div class="container">
+        <div class="form-container">
+            <h1>Edit Task</h1>
 
-    <form method="POST">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'success' %}
+                            <div class="alert alert-success">{{ message }}</div>
+                        {% elif category == 'error' or category == 'danger' %}
+                            <div class="alert alert-error">{{ message }}</div>
+                        {% elif category == 'warning' %}
+                            <div class="alert alert-warning">{{ message }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-        <label><strong>Title</strong></label><br>
-        <input 
-            type="text" 
-            name="title" 
-            value="{{ task.title }}" 
-            required 
-            style="width: 300px;"
-        ><br><br>
+            <form method="POST" class="form">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" value="{{ task.title }}" required>
+                </div>
 
-        <label><strong>Description</strong></label><br>
-        <textarea name="description" rows="5" style="width: 300px;">{{ task.description }}</textarea><br><br>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="5">{{ task.description }}</textarea>
+                </div>
 
-        <label><strong>Deadline</strong></label><br>
-        <input 
-            type="date" 
-            name="deadline" 
-            value="{{ task.deadline }}"
-        ><br><br>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>To Do</option>
+                        <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+                    </select>
+                </div>
 
-        <label><strong>Team Assignment</strong></label><br>
-        <select name="team_id">
-            <option value="">-- No Team Assigned --</option>
-            
-            {% for team in teams %}
-                <option 
-                    value="{{ team.id }}" 
-                    {% if task.team_id == team.id %}selected{% endif %}
-                >
-                    {{ team.name }}
-                </option>
-            {% endfor %}
-        </select>
+                <div class="form-group">
+                    <label>Deadline</label>
+                    <input type="date" name="deadline" value="{{ task.deadline }}">
+                </div>
 
-        <br><br>
+                <div class="form-group">
+                    <label>Team Assignment</label>
+                    <select name="team_id">
+                        <option value="">-- No Team Assigned --</option>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}" {% if task.team_id == team.id %}selected{% endif %}>
+                                {{ team.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-        <button type="submit" style="padding: 10px 20px; cursor: pointer;">
-            Update Task
-        </button>
-
-    </form>
-
-    <br>
-    <hr>
-
-    <a href="{{ url_for('tasks.dashboard') }}">
-        ← Back to Dashboard
-    </a>
+                <button type="submit" class="btn btn-primary">Update Task</button>
+                <a href="{{ url_for('tasks.dashboard') }}" class="btn btn-secondary" style="text-decoration: none;">Cancel</a>
+            </form>
+        </div>
+    </div>
 
 </body>
 </html>

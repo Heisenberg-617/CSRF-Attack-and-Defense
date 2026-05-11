@@ -1,0 +1,123 @@
+{# Team management page #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <h1>CSRF Lab</h1>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('tasks.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('tasks.create_task') }}">Create Task</a></li>
+                <li><a href="{{ url_for('teams.manage_teams') }}">Manage Teams</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'success' %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% elif category == 'error' or category == 'danger' %}
+                        <div class="alert alert-error">{{ message }}</div>
+                    {% elif category == 'warning' %}
+                        <div class="alert alert-warning">{{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Create Team Section -->
+        <div class="form-container">
+            <h2>Create a New Team</h2>
+            <form method="POST" class="form">
+                <div class="form-group">
+                    <label>Team Name</label>
+                    <input type="text" name="name" placeholder="Enter a team name" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="4" placeholder="Optional team description"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Team</button>
+            </form>
+        </div>
+
+        <!-- Existing Teams Section -->
+        <div class="dashboard" style="margin-top: 2rem;">
+            <h2>Existing Teams</h2>
+            {% if teams %}
+                <table class="tasks-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in teams %}
+                        <tr>
+                            <td>#{{ team.id }}</td>
+                            <td><strong>{{ team.name }}</strong></td>
+                            <td>{{ team.description or 'No description' }}</td>
+                            <td>{{ team.created_at.strftime('%Y-%m-%d %H:%M') if team.created_at else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 2rem 0;">No teams have been created yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Assign Task to Team Section (CSRF Target) -->
+        <div class="form-container" style="margin-top: 2rem;">
+            <h2>Assign a Task to a Team</h2>
+            
+            {% if tasks and teams %}
+                <!-- Vulnerable Form: No CSRF token -->
+                <form action="{{ url_for('teams.assign_task_to_team') }}" method="POST" class="form">
+                    <div class="form-group">
+                        <label>Task</label>
+                        <select name="task_id" required>
+                            <option value="" disabled selected>Choose a task...</option>
+                            {% for task in tasks %}
+                                <option value="{{ task.id }}">
+                                    {{ task.title }}{% if task.team_name %} (currently: {{ task.team_name }}){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Team</label>
+                        <select name="team_id" required>
+                            <option value="" disabled selected>Choose a team...</option>
+                            {% for team in teams %}
+                                <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Assign Task</button>
+                </form>
+            {% elif not teams %}
+                <p style="color: #666;"><em>Create at least one team before assigning tasks.</em></p>
+            {% else %}
+                <p style="color: #666;"><em>No tasks available to assign. <a href="{{ url_for('tasks.create_task') }}" style="color: #3498db;">Create a task first</a>.</em></p>
+            {% endif %}
+        </div>
+
+    </div>
+
+</body>
+</html>

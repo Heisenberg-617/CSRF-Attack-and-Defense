@@ -94,4 +94,4 @@ def login():
 def logout():
     session.clear()
     flash('You have been logged out', 'success')
-    return redirect(url_for('main.home'))
+    return redirect(url_for('home'))
