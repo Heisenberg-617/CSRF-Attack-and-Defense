@@ -1,1 +1,30 @@
-{# Index page #}
+{% extends "base.html" %}
+
+{% block title %}Home - CSRF Demo{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>CSRF Attack & Defense Demo</h1>
+    <p>Educational application to demonstrate CSRF vulnerabilities and defenses</p>
+    
+    {% if not session.get('user_id') %}
+        <div class="auth-buttons">
+            <a href="/login" class="btn btn-primary">Login</a>
+            <a href="/register" class="btn btn-secondary">Register</a>
+        </div>
+    {% else %}
+        <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+    {% endif %}
+</div>
+
+<div class="info-section">
+    <h2>About This Project</h2>
+    <p>This application demonstrates:</p>
+    <ul>
+        <li>CSRF attack vectors</li>
+        <li>CSRF defense mechanisms</li>
+        <li>Secure token handling</li>
+        <li>Session management</li>
+    </ul>
+</div>
+{% endblock %}

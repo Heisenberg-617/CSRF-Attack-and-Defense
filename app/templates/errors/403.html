@@ -1,1 +1,11 @@
-{# 403 Forbidden error page #}
+{% extends "base.html" %}
+
+{% block title %}403 Forbidden - CSRF Demo{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <h1>403 - Forbidden</h1>
+    <p>CSRF token validation failed. This might indicate a CSRF attack attempt.</p>
+    <a href="/" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}
