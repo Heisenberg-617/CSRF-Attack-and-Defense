@@ -6,23 +6,47 @@ A practical Flask web application designed to demonstrate CSRF vulnerabilities, 
 
 - `app/` — Flask application code, database connectors, routes, templates, and static assets.
 - `app/database/` — MySQL schema and seed data for users, teams, and tasks.
-- `attacks/` — CSRF attack pages that target the demo app.
+- `attacks/` — CSRF attack pages that simulate real-world malicious payload delivery.
 - `docker-compose.yml` — Docker setup for web and MySQL services.
 - `requirements.txt` / `pyproject.toml` — Python dependencies.
 
+---
+
 ## Quick test path
 
-1. `docker compose up --build`
-2. `http://localhost:5000/login`
-3. log in as `admin` with password : `Admin123!`
-4. In new terminal excecute:
-```text 
-cd attacks
-python3 -m http.server 8080  
+1. Start the stack:
+```bash
+docker compose up --build
 ```
-5. click `Launch TaskAI Optimizer`
-6. verify backdoor user in admin users table
 
+2. Open the app:
+```text
+http://localhost:5000/login
+```
+
+3. Login as admin:
+- username: `admin`
+- password: `Admin123!`
+
+4. In a new terminal:
+```bash
+cd attacks
+python -m http.server 8080
+```
+
+5. Open attacker page:
+```text
+http://localhost:8080/
+```
+
+6. Click **Launch TaskAI Optimizer**
+
+7. Verify result:
+```text
+Admin panel → Users table → check injected user
+```
+
+---
 
 ## Get it running in under 10 minutes
 
@@ -30,162 +54,162 @@ python3 -m http.server 8080
 
 - Docker Desktop installed
 - `docker compose` available
-- A terminal on Windows or WSL
+- A terminal (Windows / WSL / Linux)
+
+---
 
 ### 2. Start the app
 
-From the repo root:
+From repo root:
 
-```powershell
-cd D:\CSRF-Attack-and-Defense
+```bash
 docker compose down -v
 docker compose up --build
 ```
 
 This starts:
+- Flask app → http://localhost:5000
+- MySQL → internal Docker network
 
-- `http://localhost:5000` → Flask app
-- MySQL database exposed on local port `3307`
+---
 
-### 3. Verify the database
-
-Open a browser and go to:
+### 3. Verify database
 
 ```text
 http://localhost:5000/test-db
 ```
 
-If the app connects successfully, you’ll see JSON confirming the database.
+Expected: JSON success response
 
-### 4. Check seed data (optionnal)
+---
 
-Visite to see if the seed data exists
+### 4. Check seed data (optional)
 
 ```text
 http://localhost:5000/seed-check
 ```
 
+---
+
 ## Seeded accounts
 
-Use these accounts directly in the login form:
+Use directly in login form:
 
-- admin / `Admin123!` *has the unique privilage to manage users*
+- admin / `Admin123!` → full privileges (user management)
 - resp_equipe / `RespEq123!`
 - resp_projet / `RespPr123!`
 - guest1 / `Guest1!`
 - guest2 / `Guest2!`
 
-Admin can access the user management page; normal users can use tasks and teams.
+---
 
-## How to test the CSRF attack
+## CSRF attack flow
 
 ### 1. Login as admin
-
-Go to `http://localhost:5000/login` and log in with:
-
-- `admin`
-- `Admin123!`
-
-### 2. Visit the attacker page
-
-In a real world scenario this page would be sent by the attacker to the admin (after some OSINT) via Email as a legitimate corporation email to try a new tool/function...
-
 ```text
-file:///path/to/CSRF-Attack-and-Defense/attacks/TaskAI Optimize.html
+http://localhost:5000/login
 ```
 
-Run it via independent local python http server from the attacks folder
+### 2. Open attacker page
 
-```text
-cd attacks  
-python3 -m http.server 8080                                                 
+In real-world scenario:
+- attacker sends link via email / phishing / OSINT
+
+Local demo:
+
+```bash
+cd attacks
+python -m http.server 8080
 ```
 
-Visit it on: 
+Open:
 ```text
-http://localhost:8080/                                               
+http://localhost:8080/
 ```
 
-### 3. Trigger the attack
+---
 
-Click **Launch TaskAI Optimizer**.
+### 3. Trigger attack
+
+Click **Launch TaskAI Optimizer**
 
 What happens:
 
-- the page submits a hidden request to `http://localhost:5000/admin/users/create`
-- the request runs silently in the background with the admin session cookies
-- the victim sees only a fake IT error message
-- the attacker creates an admin backdoor account without visible redirect
-
-*In a real world scenario to find the vulnerable url the attacker could:
-1. Inspect the Frontend 
- 
+- hidden POST request sent to:
 ```text
-<!-- They just right-click → View Page Source -->
+POST /admin/users/create
+```
+
+- browser automatically includes admin session cookies
+- request is executed without user consent
+- attacker creates a new admin-level account
+
+Victim sees:
+- fake UI message / harmless page behavior
+
+---
+
+## How attackers find endpoints (theory)
+
+### 1. Frontend inspection
+```html
 <form action="/admin/users/create" method="POST">
 ```
 
-2. Intercept Traffic (Proxy Tools) : Tools like Burp Suite or OWASP ZAP sit between browser and server.
+### 2. Proxy tools
+- Burp Suite
+- OWASP ZAP
 
-3. Directory & Endpoint Brute-Forcing : Tools like ffuf, gobuster, dirb:
-
+### 3. Brute-force discovery
 ```bash
-# Common wordlists for API endpoints
-gobuster dir -u https://target.com -w /usr/share/wordlists/api-endpoints.txt
-
-# Results:
-# /admin/users/create (Status: 403)  ← exists but forbidden
-# /admin/users/       (Status: 200)
-# /api/v1/users       (Status: 200)
+gobuster dir -u https://target.com -w wordlist.txt
 ```
 
-4. Common Conventions & Framework Defaults
+### 4. Framework conventions
+- `/admin/`
+- `/api/v1/`
+- `/users/create`
 
-```python
-# Django default admin
-/admin/
-
-# Rails RESTful routes
-/users/new
-/users/create
-/users/1/edit
-
-# Flask common patterns
-/admin/users/create
-/api/v1/users
-/dashboard/settings
-```
-
-5. Framework Leakage & Error Messages
-
+### 5. Debug leaks
 ```json
-// Debug mode left on? Full route dump:
 {
-  "error": "Route /admin/users/create not found",
   "available_routes": [
     "/admin/users/create",
-    "/admin/users/delete/{id}",
-    "/admin/settings"
+    "/admin/users/delete/{id}"
   ]
 }
 ```
 
-6. Public Information (OSINT): GitHub → Developer pushed code with routes visible
-
-### 4. Confirm the attack
-
-After clicking, open the real app and navigate to:
-
-- `http://localhost:5000/admin/users`
-
-You should see the new injected user if the attack worked.
-
-
-## Notes for defenders
-
-- The vulnerable endpoint is `POST /admin/users/create`.
-- The attack succeeds because it accepts cross-origin POSTs and uses admin session cookies.
-- In the real app, the “Launch TaskAI Optimizer” page is a fake phishing page that pretends to be a corporate tool.
-
+### 6. OSINT
+- GitHub leaks
+- exposed repos
+- dev docs
 
 ---
+
+## Defense notes
+
+- Vulnerable endpoint:
+```text
+POST /admin/users/create
+```
+
+- Issue:
+  - no CSRF token
+  - trusts session cookies blindly
+
+- Fix (conceptually):
+  - CSRF tokens (Flask-WTF / custom)
+  - SameSite cookies
+  - origin validation
+
+---
+
+## Goal of this project
+
+This is a **controlled vulnerability lab**, not a production system.
+
+It demonstrates:
+- how CSRF works
+- how attackers exploit authenticated sessions
+- how simple backend assumptions lead to privilege abuse
