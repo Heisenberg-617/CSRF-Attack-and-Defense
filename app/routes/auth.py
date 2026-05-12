@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db_connection
-import re
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -24,7 +23,7 @@ def register():
 
         try:
             conn = get_db_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
 
             # Check if user exists
             cursor.execute("SELECT id FROM users WHERE username = %s OR email = %s", (username, email))
@@ -34,11 +33,11 @@ def register():
                 conn.close()
                 return redirect(url_for('auth.register'))
 
-            # Create user
-            password_hash = generate_password_hash(password)
+            # Create user (Explicitly set role to 'guest')
+            password_hash = generate_password_hash(password, method='scrypt')
             cursor.execute(
-                "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)",
-                (username, email, password_hash)
+                "INSERT INTO users (username, email, password_hash, role) VALUES (%s, %s, %s, %s)",
+                (username, email, password_hash, 'guest')
             )
             conn.commit()
             cursor.close()
@@ -66,21 +65,24 @@ def login():
 
         try:
             conn = get_db_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
 
-            cursor.execute("SELECT id, username, password_hash FROM users WHERE username = %s", (username,))
+            # Fetch role alongside credentials
+            cursor.execute("SELECT id, username, password_hash, role FROM users WHERE username = %s", (username,))
             user = cursor.fetchone()
             cursor.close()
             conn.close()
 
-            if not user or not check_password_hash(user[2], password):
+            if not user or not check_password_hash(user['password_hash'], password, ):
                 flash('Invalid username or password', 'error')
                 return redirect(url_for('auth.login'))
 
-            # Login successful
-            session['user_id'] = user[0]
-            session['username'] = user[1]
-            flash(f'Welcome back, {user[1]}!', 'success')
+            # Login successful - SAVE THE ROLE!
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            session['role'] = user['role'] 
+            
+            flash(f'Welcome back, {user["username"]}!', 'success')
             return redirect(url_for('tasks.dashboard'))
 
         except Exception as e:
