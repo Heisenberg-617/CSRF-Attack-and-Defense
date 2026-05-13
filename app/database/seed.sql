@@ -17,8 +17,8 @@ INSERT INTO tasks (title, description, deadline, status, user_id, team_id) VALUE
 ('Task 1', 'Description for Task 1', '2026-12-31 23:59:59', 'todo', 1, 1),
 ('Task 2', 'Description for Task 2', '2026-11-20 23:59:59', 'todo', 1, 1),
 ('Task 3', 'Description for Task 3', '2026-10-20 23:59:59', 'todo', 1, 1),
-('Task 1', 'Description', '2026-11-30 23:59:59', 'todo', 2, 1),
-('Task 1', 'Description', '2026-10-31 23:59:59', 'todo', 3, 2);
+('Task 4', 'Description for Task 4', '2026-09-20 23:59:59', 'todo', 1, 2),
+('Task 5', 'Description for Task 5', '2026-08-20 23:59:59', 'todo', 1, 2);
 
 -- Passwords:
 --    "admin": "Admin123!",

