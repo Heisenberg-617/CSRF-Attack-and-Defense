@@ -28,8 +28,10 @@
 
     <div class="container">
         <div class="dashboard">
-            <h1>Tasks Dashboard</h1>
-
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h1>Tasks Dashboard</h1>
+                <a href="{{ url_for('tasks.create_task') }}" class="btn btn-primary">+ Add New Task</a>
+            </div>
             <!-- Use your CSS alert classes -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
