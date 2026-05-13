@@ -18,6 +18,16 @@ from routes.admin import admin_bp
 # Create Flask app instance
 app = Flask(__name__)
 
+from flask_wtf.csrf import CSRFProtect
+# Enable CSRF protection for all forms
+csrf = CSRFProtect(app)
+# Force CSRF token to be sent in a cookie (instead of form field) for better security
+app.config['SESSION_COOKIE_SECURE'] = False  # Set to True if you ever use HTTPS
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax' # THIS IS THE CRITICAL CSRF COOKIE DEFENSE
+# To show that attack was blocked by CSRF protection
+from flask_wtf.csrf import CSRFError
+
 # Register feature routes (blueprints)
 app.register_blueprint(tasks_bp)
 app.register_blueprint(teams_bp)
@@ -108,7 +118,6 @@ def handle_csrf_error(e):
 @app.errorhandler(404)
 def handle_404_error(e):
     return render_template('errors/404.html'), 404
-
 
 # -------------------------
 # MAIN ENTRY

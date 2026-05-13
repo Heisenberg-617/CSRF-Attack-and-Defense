@@ -15,6 +15,7 @@
     <div id="create-form" style="display: none; margin-bottom: 2rem; padding: 1.5rem; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;">
         <h3>Create User</h3>
         <form method="POST" action="{{ url_for('admin.create_user') }}" class="form" style="margin-top: 1rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" required>
@@ -33,7 +34,9 @@
                     <option value="guest">Guest</option>
                     <option value="responsable_equipe">Responsable Equipe</option>
                     <option value="responsable_projet">Responsable Projet</option>
-                    <option value="admin" style="color: red;">Admin</option>
+                    <!-- <option value="admin" style="color: red;">Admin</option> --> 
+                     <!-- Normally admin role should not be assignable from the UI for security reasons (same site manipulation attack risk), but
+                      this was purposefully allowed in the vulnerable app version for demonstration purposes -->
                 </select>
             </div>
             <button type="submit" class="btn btn-success">Save User</button>
@@ -67,6 +70,7 @@
                 </td>
                 <td>
                     <form action="{{ url_for('admin.update_role', user_id=user.id) }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <select name="role" onchange="this.form.submit()" style="padding: 5px; border-radius: 4px;">
                             <option value="guest" {% if user.role == 'guest' %}selected{% endif %}>Guest</option>
                             <option value="responsable_equipe" {% if user.role == 'responsable_equipe' %}selected{% endif %}>Resp. Equipe</option>
@@ -77,6 +81,7 @@
 
                     {% if user.id != session.get('user_id') %}
                         <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" style="display: inline; margin-left: 10px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-danger" style="padding: 5px 10px; font-size: 0.85em;" onclick="return confirm('Delete this user?')">Delete</button>
                         </form>
                     {% endif %}

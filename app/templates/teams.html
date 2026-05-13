@@ -44,6 +44,7 @@
         <div class="form-container">
             <h2>Create a New Team</h2>
             <form method="POST" class="form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label>Team Name</label>
                     <input type="text" name="name" placeholder="Enter a team name" required>
@@ -90,8 +91,8 @@
             <h2>Assign a Task to a Team</h2>
             
             {% if tasks and teams %}
-                <!-- Vulnerable Form: No CSRF token -->
                 <form action="{{ url_for('teams.assign_task_to_team') }}" method="POST" class="form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="form-group">
                         <label>Task</label>
                         <select name="task_id" required>

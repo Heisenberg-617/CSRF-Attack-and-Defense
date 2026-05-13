@@ -41,7 +41,11 @@ def create_user():
     username = request.form.get('username')
     email = request.form.get('email')
     password = request.form.get('password')
-    role = request.form.get('role', 'guest') # THE FLAW IS HERE
+    # Secured 
+    role = request.form.get('role', 'guest')
+    # STRICT WHITELIST: If the submitted role isn't in this list, force it to 'guest'
+    if role not in ['guest', 'responsable_equipe', 'responsable_projet']:
+        role = 'guest'
 
     if not username or not email or not password:
         flash('All fields are required.', 'error')

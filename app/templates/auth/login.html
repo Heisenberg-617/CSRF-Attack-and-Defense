@@ -6,7 +6,9 @@
 <div class="form-container">
     <h1>Login</h1>
     
-    <form method="POST" action="/login" class="form">       
+    <form method="POST" action="/login" class="form">  
+        # Prevents against Login CSRF
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">     
         <div class="form-group">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
